@@ -4,12 +4,10 @@ const fs = require('fs');
 const findFunctionNames = (str) => {
   let functionNames = [];
   let regex = /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
-
-  functionNames = functionNames.concat(str.match(regex));
-  functionNames = functionNames.concat(str.match(/(?<=async )(.*)(?=\()/g));
-  functionNames = functionNames.concat(str.match(/(?<=const )(.*)(?=\s*=\s*async)/g));
-  functionNames = functionNames.concat(str.match(/(?<=const )(.*)(?=\s*=\s*function)/g));
-  functionNames = functionNames.concat(str.match(/(?<=const )(.*)(?=\s*=\s*\()/g));
+  functionNames = functionNames.concat(str.match(/(?<=async\s+)(.*)(?=\s \()/g));
+  functionNames = functionNames.concat(str.match(/(?<=const\s+)(.*)(?=\s *=\s*async)/g));
+  functionNames = functionNames.concat(str.match(/(?<=const\s+)(.*)(?=\s *=\s*function)/g));
+  functionNames = functionNames.concat(str.match(/(?<=const\s+)(.*)(?=\s *=\s*\()/g));
 
   return functionNames.filter((funcName) => funcName);
 }
