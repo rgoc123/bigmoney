@@ -1,15 +1,24 @@
 const path = require('path');
 const fs = require('fs');
 
-const findFunctionNames = (str) => {
-  let functionNames = [];
+const findInFileFunctionNames = (fileContentStr) => {
+  let inFileFunctionNames = [];
   let regex = /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
-  functionNames = functionNames.concat(str.match(/(?<=async\s+)(.*)(?=\s \()/g));
-  functionNames = functionNames.concat(str.match(/(?<=const\s+)(.*)(?=\s *=\s*async)/g));
-  functionNames = functionNames.concat(str.match(/(?<=const\s+)(.*)(?=\s *=\s*function)/g));
-  functionNames = functionNames.concat(str.match(/(?<=const\s+)(.*)(?=\s *=\s*\()/g));
+  inFileFunctionNames = inFileFunctionNames.concat(fileContentStr.match(/(?<=async\s+)(.*)(?=\s \()/g));
+  inFileFunctionNames = inFileFunctionNames.concat(fileContentStr.match(/(?<=const\s+)(.*)(?=\s *=\s*async)/g));
+  inFileFunctionNames = inFileFunctionNames.concat(fileContentStr.match(/(?<=const\s+)(.*)(?=\s *=\s*function)/g));
+  inFileFunctionNames = inFileFunctionNames.concat(fileContentStr.match(/(?<=const\s+)(.*)(?=\s *=\s*\()/g));
 
-  return functionNames.filter((funcName) => funcName);
+  return inFileFunctionNames.filter((funcName) => funcName);
+}
+
+const findImportedFunctionNames = (fileContentStr) => {
+  let importedFunctionNames = [];
+
+  importedFunctionNames = importedFunctionNames.concat(fileContentStr.match(/(?<=import\s+)(.*)(?= from)/g));
+  console.log(importedFunctionNames)
+
+  return importedFunctionNames;
 }
 
 const bigMoney = (directory) => {
@@ -25,13 +34,21 @@ const bigMoney = (directory) => {
       const splitFile = file.split('.');
       const extension = splitFile[splitFile.length - 1];
 
-      let functionNames = [];
+      let inFileFunctionNames = [];
+      let importedFunctionNames = [];
       if (extension === 'js' || extension === 'jsx' || extension === 'ts' || extension === 'tsx') {
-        const fileContents = fs.readFileSync(filePath, 'utf8');
-        functionNames = findFunctionNames(fileContents);
+        const fileContentStr = fs.readFileSync(filePath, 'utf8');
+        inFileFunctionNames = findInFileFunctionNames(fileContentStr);
+        // console.log(inFileFunctionNames)
+        console.log(file);
+        importedFunctionNames = findImportedFunctionNames(fileContentStr);
+        // console.log(importedFunctionNames)
       }
 
-      testArr.push({ [file]: functionNames });
+      testArr.push({ [file]: {
+        inFileFunctionNames,
+        importedFunctionNames
+      } });
     }
   });
 
